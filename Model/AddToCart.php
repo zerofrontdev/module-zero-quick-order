@@ -17,6 +17,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -40,11 +41,17 @@ class AddToCart
      * @param array<string, float> $lines SKU => quantity
      * @return array{added: array<string, float>, failed: array<string, string>} SKU => quantity added, SKU => why not
      */
-    public function add(array $lines): array
+    /**
+     * @param array<string, float> $lines qty by SKU
+     * @param Quote|null $quote the cart to fill; the checkout session's when null (the theme)
+     * @return array{added: array<string, float>, failed: array<string, string>}
+     */
+    public function add(array $lines, ?Quote $quote = null): array
     {
         $added = [];
         $failed = [];
-        $quote = $this->checkoutSession->getQuote();
+        $fromSession = $quote === null;
+        $quote ??= $this->checkoutSession->getQuote();
         foreach ($lines as $sku => $qty) {
             $sku = (string) $sku;
             try {
@@ -64,7 +71,9 @@ class AddToCart
         if ($added) {
             $quote->setTotalsCollectedFlag(false)->collectTotals();
             $this->cartRepository->save($quote);
-            $this->checkoutSession->setQuoteId($quote->getId());
+            if ($fromSession) {
+                $this->checkoutSession->setQuoteId($quote->getId());
+            }
         }
 
         return ['added' => $added, 'failed' => $failed];
@@ -84,8 +93,10 @@ class AddToCart
         }
 
         return [
+            'sku' => (string) $product->getSku(),
             'name' => (string) $product->getName(),
             'price' => $this->priceCurrency->format((float) $product->getFinalPrice(), false),
+            'price_value' => $this->priceCurrency->convertAndRound((float) $product->getFinalPrice()),
             'salable' => $product->isSalable() && !$product->getTypeInstance()->hasRequiredOptions($product),
             'url' => (string) $product->getProductUrl(),
         ];

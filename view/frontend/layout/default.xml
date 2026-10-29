@@ -8,9 +8,10 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="footer_links">
-            <block class="Magento\Framework\View\Element\Html\Link\Current" name="zero-quickorder-footer-link"
+            <block class="Zero\Core\Block\Html\Link\IfEnabled" name="zero-quickorder-footer-link"
                    ifconfig="zero_quick_order/general/footer_link">
                 <arguments>
+                    <argument name="enabled_path" xsi:type="string">zero_quick_order/general/enabled</argument>
                     <argument name="label" xsi:type="string" translate="true">Quick Order</argument>
                     <argument name="path" xsi:type="string">quickorder</argument>
                 </arguments>
