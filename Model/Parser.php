@@ -26,7 +26,10 @@ class Parser
     {
         $lines = [];
         foreach ($rows as $row) {
-            self::put($lines, (string) ($row['sku'] ?? ''), (string) ($row['qty'] ?? '1'));
+            $sku = $row['sku'] ?? '';
+            $qty = $row['qty'] ?? '1';
+            // Only text counts: a nested array (items[0][sku][]=x) is skipped, not turned into "Array".
+            self::put($lines, is_scalar($sku) ? (string) $sku : '', is_scalar($qty) ? (string) $qty : '1');
         }
 
         return $lines;

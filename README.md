@@ -50,6 +50,8 @@ the Footer.
 - `dev/tests/zero-e2e/tests/quick-order.spec.ts`: rows plus a pasted list
   into the cart, an unknown SKU reported, the SKU lookup.
 
+What changed in each release: [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 OSL-3.0 or AFL-3.0, your choice: see `NOTICE.md`.

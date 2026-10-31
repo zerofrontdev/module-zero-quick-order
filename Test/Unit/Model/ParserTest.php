@@ -21,6 +21,14 @@ class ParserTest extends TestCase
         );
     }
 
+    public function testRowsSkipNestedArraysInsteadOfReadingArray(): void
+    {
+        $this->assertSame(
+            ['24-MB01' => 1.0],
+            Parser::rows([['sku' => ['a' => ['b' => '1']], 'qty' => '2'], ['sku' => '24-MB01', 'qty' => ['3']], 'not a row'])
+        );
+    }
+
     public function testTextTakesAnySeparatorAndAddsUpDuplicates(): void
     {
         self::assertSame(

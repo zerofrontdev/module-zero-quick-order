@@ -50,6 +50,6 @@ class Lookup implements PrivateFragmentActionInterface
             $sku ??= $row['sku'] ?? null;
         }
 
-        return trim((string) $sku);
+        return is_scalar($sku) ? trim((string) $sku) : '';
     }
 }

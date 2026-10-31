@@ -41,9 +41,10 @@ class Add implements HttpPostActionInterface
         if (!$this->config->isEnabled()) {
             return $redirect->setPath('checkout/cart');
         }
+        $list = $this->request->getParam('list', '');
         $lines = Parser::merge(
             Parser::rows((array) $this->request->getParam('items', [])),
-            Parser::text((string) $this->request->getParam('list', '')),
+            Parser::text(is_scalar($list) ? (string) $list : ''),
             Parser::csv($this->csv())
         );
         if (!$lines) {
@@ -76,10 +77,11 @@ class Add implements HttpPostActionInterface
     {
         $file = $this->request->getFiles('csv');
         $file = is_array($file) ? $file : [];
-        if (empty($file['tmp_name']) || !empty($file['error']) || (int) ($file['size'] ?? 0) > self::MAX_CSV_BYTES) {
+        // A nested field name (csv[a]) gives arrays, not one file: treated as no file.
+        if (!is_string($file['tmp_name'] ?? null) || $file['tmp_name'] === '' || !empty($file['error']) || (int) ($file['size'] ?? 0) > self::MAX_CSV_BYTES) {
             return '';
         }
 
-        return (string) file_get_contents((string) $file['tmp_name']);
+        return (string) file_get_contents($file['tmp_name']);
     }
 }
